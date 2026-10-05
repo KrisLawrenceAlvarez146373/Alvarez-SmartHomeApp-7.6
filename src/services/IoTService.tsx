@@ -1,5 +1,14 @@
 import { Device, SensorData, sampleDevices, sampleSensorData } from '../models/IoTmodels';
 
+/**
+ * Backend base URL — swap this value (or load from environment) when connecting
+ * a real IoT API server.
+ *
+ * Example real usage:
+ *   const response = await fetch(`${BASE_URL}/devices`);
+ */
+export const BASE_URL = 'http://localhost:3000';
+
 export const delay = (ms: number = 1500): Promise<void> =>
   new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -14,6 +23,13 @@ export const setSimulateFailure = (fail: boolean) => {
 
 export const getSimulateFailure = () => shouldSimulateFailure;
 
+/**
+ * Fetch all sensor readings.
+ * Replace the body with a real fetch call when the backend is ready:
+ *   const res = await fetch(`${BASE_URL}/sensors`);
+ *   if (!res.ok) throw new Error('Unable to retrieve sensor data.');
+ *   return res.json();
+ */
 export async function getSensorData(): Promise<SensorData> {
   await delay(1500);
 
@@ -30,6 +46,13 @@ export async function getSensorData(): Promise<SensorData> {
   return { ...simulatedSensorData };
 }
 
+/**
+ * Fetch all devices.
+ * Replace the body with a real fetch call when the backend is ready:
+ *   const res = await fetch(`${BASE_URL}/devices`);
+ *   if (!res.ok) throw new Error('Unable to retrieve devices.');
+ *   return res.json();
+ */
 export async function getDevices(): Promise<Device[]> {
   await delay(1500);
 
@@ -40,6 +63,17 @@ export async function getDevices(): Promise<Device[]> {
   return JSON.parse(JSON.stringify(simulatedDevices));
 }
 
+/**
+ * Update a device's status.
+ * Replace the body with a real fetch call when the backend is ready:
+ *   const res = await fetch(`${BASE_URL}/devices/${id}`, {
+ *     method: 'PATCH',
+ *     headers: { 'Content-Type': 'application/json' },
+ *     body: JSON.stringify({ status }),
+ *   });
+ *   if (!res.ok) throw new Error(`Unable to update device.`);
+ *   return res.json();
+ */
 export async function updateDeviceStatus(id: number, status: boolean): Promise<Device> {
   await delay(1500);
 

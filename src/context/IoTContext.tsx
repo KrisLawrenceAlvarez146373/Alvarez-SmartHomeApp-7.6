@@ -17,6 +17,15 @@ type IoTContextType = {
   toggleDevice: (id: number, value: boolean) => Promise<void>;
   clearDeviceError: () => void;
   clearSensorError: () => void;
+  // App-wide preferences (ready for backend)
+  apiBaseUrl: string;
+  setApiBaseUrl: (url: string) => void;
+  notifications: boolean;
+  setNotifications: (value: boolean) => void;
+  autoConnect: boolean;
+  setAutoConnect: (value: boolean) => void;
+  darkMode: boolean;
+  setDarkMode: (value: boolean) => void;
 };
 
 const IoTContext = createContext<IoTContextType | undefined>(undefined);
@@ -30,6 +39,12 @@ export function IoTProvider({ children }: { children: React.ReactNode }) {
   const [updatingDeviceId, setUpdatingDeviceId] = useState<number | null>(null);
   const [deviceError, setDeviceError] = useState<string | null>(null);
   const [sensorError, setSensorError] = useState<string | null>(null);
+
+  // App-wide preferences — swap apiBaseUrl to point at your real backend
+  const [apiBaseUrl, setApiBaseUrl] = useState<string>('http://localhost:3000');
+  const [notifications, setNotifications] = useState<boolean>(true);
+  const [autoConnect, setAutoConnect] = useState<boolean>(true);
+  const [darkMode, setDarkMode] = useState<boolean>(false);
 
   const fetchDevices = async () => {
     if (!isGatewayConnected) {
@@ -106,6 +121,14 @@ export function IoTProvider({ children }: { children: React.ReactNode }) {
         toggleDevice,
         clearDeviceError,
         clearSensorError,
+        apiBaseUrl,
+        setApiBaseUrl,
+        notifications,
+        setNotifications,
+        autoConnect,
+        setAutoConnect,
+        darkMode,
+        setDarkMode,
       }}
     >
       {children}
