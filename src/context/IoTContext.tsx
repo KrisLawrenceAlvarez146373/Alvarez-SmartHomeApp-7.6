@@ -1,6 +1,12 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Device, SensorData, sampleDevices, sampleSensorData } from '../models/IoTmodels';
-import { getDevices, getSensorData, updateDeviceStatus } from '../services/IoTService';
+import {
+  DEFAULT_BASE_URL,
+  getDevices,
+  getSensorData,
+  setApiBaseUrl as setServiceApiBaseUrl,
+  updateDeviceStatus,
+} from '../services/IoTService';
 
 type IoTContextType = {
   devices: Device[];
@@ -41,10 +47,14 @@ export function IoTProvider({ children }: { children: React.ReactNode }) {
   const [sensorError, setSensorError] = useState<string | null>(null);
 
   // App-wide preferences — swap apiBaseUrl to point at your real backend
-  const [apiBaseUrl, setApiBaseUrl] = useState<string>('http://localhost:3000');
+  const [apiBaseUrl, setApiBaseUrl] = useState<string>(DEFAULT_BASE_URL);
   const [notifications, setNotifications] = useState<boolean>(true);
   const [autoConnect, setAutoConnect] = useState<boolean>(true);
   const [darkMode, setDarkMode] = useState<boolean>(false);
+
+  useEffect(() => {
+    setServiceApiBaseUrl(apiBaseUrl);
+  }, [apiBaseUrl]);
 
   const fetchDevices = async () => {
     if (!isGatewayConnected) {

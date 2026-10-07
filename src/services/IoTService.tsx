@@ -1,106 +1,60 @@
-import { Device, SensorData, sampleDevices, sampleSensorData } from '../models/IoTmodels';
+import { Platform } from 'react-native';
+import { Device, SensorData } from '../models/IoTmodels';
 
-/**
- * Backend base URL — swap this value (or load from environment) when connecting
- * a real IoT API server.
- *
- * Example real usage:
- *   const response = await fetch(`${BASE_URL}/devices`);
- */
-export const BASE_URL = 'http://localhost:3000';
+export const DEFAULT_BASE_URL = Platform.select({
+  android: 'http://10.0.2.2:3001',
+  default: 'http://localhost:3001',
+}) as string;
 
-export const delay = (ms: number = 1500): Promise<void> =>
-  new Promise((resolve) => setTimeout(resolve, ms));
+let apiBaseUrl = DEFAULT_BASE_URL;
 
-let simulatedDevices: Device[] = JSON.parse(JSON.stringify(sampleDevices));
-let simulatedSensorData: SensorData = { ...sampleSensorData };
-
-let shouldSimulateFailure = false;
-
-export const setSimulateFailure = (fail: boolean) => {
-  shouldSimulateFailure = fail;
+export const setApiBaseUrl = (url: string) => {
+  apiBaseUrl = url.trim() || DEFAULT_BASE_URL;
 };
 
-export const getSimulateFailure = () => shouldSimulateFailure;
+export const getApiBaseUrl = () => apiBaseUrl;
 
-/**
- * Fetch all sensor readings.
- * Replace the body with a real fetch call when the backend is ready:
- *   const res = await fetch(`${BASE_URL}/sensors`);
- *   if (!res.ok) throw new Error('Unable to retrieve sensor data.');
- *   return res.json();
- */
+const buildUrl = (path: string) => `${apiBaseUrl.replace(/\/$/, '')}${path}`;
+
+async function requestJson<T>(path: string, init?: RequestInit): Promise<T> {
+  const response = await fetch(buildUrl(path), {
+    headers: {
+      'Content-Type': 'application/json',
+      ...(init?.headers || {}),
+    },
+    ...init,
+  });
+
+  const text = await response.text();
+  const payload = text ? JSON.parse(text) : null;
+
+  if (!response.ok) {
+    const message = payload?.message || payload?.error || 'Request failed.';
+    throw new Error(message);
+  }
+
+  return payload as T;
+}
+
 export async function getSensorData(): Promise<SensorData> {
-  await delay(1500);
-
-  if (shouldSimulateFailure) {
-    throw new Error('Unable to retrieve sensor data.');
-  }
-
-  simulatedSensorData = {
-    temperature: Math.round((26 + Math.random() * 4) * 10) / 10,
-    humidity: Math.round(58 + Math.random() * 12),
-    lightLevel: Math.round(680 + Math.random() * 80),
-  };
-
-  return { ...simulatedSensorData };
+  return requestJson<SensorData>('/sensors');
 }
 
-/**
- * Fetch all devices.
- * Replace the body with a real fetch call when the backend is ready:
- *   const res = await fetch(`${BASE_URL}/devices`);
- *   if (!res.ok) throw new Error('Unable to retrieve devices.');
- *   return res.json();
- */
 export async function getDevices(): Promise<Device[]> {
-  await delay(1500);
-
-  if (shouldSimulateFailure) {
-    throw new Error('Unable to retrieve devices.');
-  }
-
-  return JSON.parse(JSON.stringify(simulatedDevices));
+  return requestJson<Device[]>('/devices');
 }
 
-/**
- * Update a device's status.
- * Replace the body with a real fetch call when the backend is ready:
- *   const res = await fetch(`${BASE_URL}/devices/${id}`, {
- *     method: 'PATCH',
- *     headers: { 'Content-Type': 'application/json' },
- *     body: JSON.stringify({ status }),
- *   });
- *   if (!res.ok) throw new Error(`Unable to update device.`);
- *   return res.json();
- */
 export async function updateDeviceStatus(id: number, status: boolean): Promise<Device> {
-  await delay(1500);
-
-  const device = simulatedDevices.find((d) => d.id === id);
-
-  if (shouldSimulateFailure) {
-    throw new Error(`Unable to update ${device ? device.name : 'device'}.`);
-  }
-
-  if (!device) {
-    throw new Error(`Device with ID ${id} not found.`);
-  }
-
-  device.status = status;
-  return { ...device };
+  return requestJson<Device>(`/devices/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ status }),
+  });
 }
-
-export const resetDevices = () => {
-  simulatedDevices = JSON.parse(JSON.stringify(sampleDevices));
-};
 
 export default {
   getSensorData,
   getDevices,
   updateDeviceStatus,
-  delay,
-  setSimulateFailure,
-  getSimulateFailure,
-  resetDevices,
+  setApiBaseUrl,
+  getApiBaseUrl,
 };

@@ -11,6 +11,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useIoT } from '../../context/IoTContext';
 import { Colors } from '../../theme/colors';
+import { DEFAULT_BASE_URL } from '../../services/IoTService';
 
 export default function SettingsScreen() {
   const {
@@ -124,7 +125,7 @@ export default function SettingsScreen() {
               autoCapitalize="none"
               autoCorrect={false}
               keyboardType="url"
-              placeholder="http://localhost:3000"
+              placeholder={DEFAULT_BASE_URL}
               placeholderTextColor={Colors.border}
             />
             <TouchableOpacity style={styles.saveButton} onPress={saveUrl}>
@@ -153,8 +154,9 @@ export default function SettingsScreen() {
         )}
 
         <Text style={styles.apiHint}>
-          Swap this URL to your real IoT backend server. All API calls in{' '}
+          Point this to your REST backend server. All API calls in{' '}
           <Text style={styles.apiHintMono}>IoTService.tsx</Text> use this base.
+          {'\n'}On Android emulator, the default is <Text style={styles.apiHintMono}>10.0.2.2</Text>.
         </Text>
       </View>
 

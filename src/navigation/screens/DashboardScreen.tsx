@@ -27,6 +27,7 @@ export default function DashboardScreen() {
     updatingDeviceId,
     isGatewayConnected,
     isDevicesLoading,
+    refreshSensors,
     deviceError,
     fetchDevices,
     clearDeviceError,
@@ -34,6 +35,7 @@ export default function DashboardScreen() {
 
   useEffect(() => {
     fetchDevices();
+    refreshSensors();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

@@ -13,6 +13,7 @@ const Drawer = createDrawerNavigator();
 export default function DrawerNavigator() {
   return (
     <Drawer.Navigator
+      initialRouteName="Dashboard"
       drawerContent={(props) => (
         <CustomDrawerContent {...props} />
       )}>
